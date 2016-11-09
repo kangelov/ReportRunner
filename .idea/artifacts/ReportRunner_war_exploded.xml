@@ -13,13 +13,6 @@
           <element id="library" level="project" name="Maven: org.springframework:spring-beans:4.3.3.RELEASE" />
           <element id="library" level="project" name="Maven: org.springframework:spring-tx:4.3.3.RELEASE" />
           <element id="library" level="project" name="Maven: org.springframework:spring-oxm:4.3.3.RELEASE" />
-          <element id="library" level="project" name="Maven: com.oracle.jdbc:ojdbc7:12.1.0.2" />
-          <element id="library" level="project" name="Maven: com.oracle.jdbc:xdb6:12.1.0.2" />
-          <element id="library" level="project" name="Maven: com.oracle.jdbc:orai18n:12.1.0.2" />
-          <element id="library" level="project" name="Maven: com.oracle.jdbc:xmlparserv2:12.1.0.2" />
-          <element id="library" level="project" name="Maven: com.oracle.jdbc:oraclepki:12.1.0.2" />
-          <element id="library" level="project" name="Maven: com.oracle.jdbc:osdt_cert:12.1.0.2" />
-          <element id="library" level="project" name="Maven: com.oracle.jdbc:osdt_core:12.1.0.2" />
           <element id="library" level="project" name="Maven: org.springframework.batch:spring-batch-core:3.0.7.RELEASE" />
           <element id="library" level="project" name="Maven: com.ibm.jbatch:com.ibm.jbatch-tck-spi:1.0" />
           <element id="library" level="project" name="Maven: javax.batch:javax.batch-api:1.0" />
@@ -35,6 +28,15 @@
           <element id="library" level="project" name="Maven: org.springframework:spring-webmvc:4.3.3.RELEASE" />
           <element id="library" level="project" name="Maven: org.springframework:spring-web:4.3.3.RELEASE" />
           <element id="library" level="project" name="Maven: javax.servlet:jstl:1.2" />
+          <element id="library" level="project" name="Maven: commons-dbcp:commons-dbcp:1.4" />
+          <element id="library" level="project" name="Maven: commons-pool:commons-pool:1.5.4" />
+          <element id="library" level="project" name="Maven: com.oracle.jdbc:ojdbc7:12.1.0.2" />
+          <element id="library" level="project" name="Maven: com.oracle.jdbc:xdb6:12.1.0.2" />
+          <element id="library" level="project" name="Maven: com.oracle.jdbc:orai18n:12.1.0.2" />
+          <element id="library" level="project" name="Maven: com.oracle.jdbc:xmlparserv2:12.1.0.2" />
+          <element id="library" level="project" name="Maven: com.oracle.jdbc:oraclepki:12.1.0.2" />
+          <element id="library" level="project" name="Maven: com.oracle.jdbc:osdt_cert:12.1.0.2" />
+          <element id="library" level="project" name="Maven: com.oracle.jdbc:osdt_core:12.1.0.2" />
         </element>
       </element>
       <element id="directory" name="META-INF">
