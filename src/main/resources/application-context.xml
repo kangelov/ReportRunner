@@ -38,6 +38,12 @@
 
     <bean id="reportDao" class="com.qualicom.rr.dao.impl.ReportDaoImpl">
         <property name="dataSource" ref="tmpgarDataSource"/>
+        <property name="successQuery" value="${jdbc.successquery}"/>
+        <property name="successQueryColumns" value="${jdbc.successquerycolumns}"/>
+        <property name="failureQuery" value="${jdbc.failurequery}"/>
+        <property name="failureQueryColumns" value="${jdbc.failurequerycolumns}"/>
+        <property name="detailedFailureQuery" value="${jdbc.detailedfailurequery}"/>
+        <property name="detailedFailureQueryColumns" value="${jdbc.detailedfailurequerycolumns}"/>
     </bean>
 
 </beans>
