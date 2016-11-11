@@ -12,20 +12,21 @@ import java.util.List;
 
  <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
  <report>
-    <headers>
-        <header>transDt</header>
-        <header>transTypeCd</header>
-        <header>transReasonDesc</header>
-        <header>numTrans</header>
-    </headers>
     <data>
         <row>
-            <value>2016-11-09 00:00:00.0</value>
+            <value>11/10/2016</value>
             <value>CreditCard</value>
             <value>PURCHASE</value>
-            <value>2</value>
+            <value>6</value>
         </row>
     </data>
+    <headers>
+        <header>Date</header>
+        <header>Tender</header>
+        <header>Type</header>
+        <header>Count</header>
+    </headers>
+    <title>Successful Payments Report</title>
  </report>
 
  *  </pre>
@@ -35,6 +36,10 @@ import java.util.List;
 @XmlSeeAlso({ReportRow.class})
 public class Report {
 
+    private String name;
+
+    private String title;
+
     private ReportColumns header;
 
     private List<ReportRow> data;
@@ -43,7 +48,9 @@ public class Report {
 
     }
 
-    public Report(ReportColumns header, List<ReportRow> data) {
+    public Report(String name, String title, ReportColumns header, List<ReportRow> data) {
+        setName(name);
+        setTitle(title);
         setHeader(header);
         setData(data);
     }
@@ -66,5 +73,35 @@ public class Report {
 
     public void setHeader(ReportColumns header) {
         this.header = header;
+    }
+
+    @XmlElement(name = "title")
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public int hashCode() {
+        return name.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) return false;
+        if (!(obj instanceof Report)) return false;
+        Report other = (Report)obj;
+        return name.equals(other);
     }
 }

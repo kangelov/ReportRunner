@@ -7,11 +7,14 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 /**
- * All the report-specific logic goes here.
+ * Generates all reports configured in the system by instantiating them specially every time they are needed.
+ *
  * Created by x110277 on 11/10/2016.
  */
 @Component("reportFactory")
@@ -19,6 +22,9 @@ public class ReportFactory implements ApplicationContextAware  {
 
     @Autowired
     private ApplicationContext appCtx;
+
+    private List<String> reportBeanList;
+
     public void setApplicationContext(ApplicationContext appCtx) {
         this.appCtx = appCtx;
     }
@@ -29,22 +35,25 @@ public class ReportFactory implements ApplicationContextAware  {
         return calendar.getTime();
     }
 
-    public Report createSuccessPaymentReport() {
-        //Reports are recreated from scratch for every request, so they cannot be autowired into long-lived objects.
-        ReportDao successReport = (ReportDao)appCtx.getBean("successReportDao");
-        return successReport.createReport();
+    public List<Report> generateReports() {
+        ArrayList<Report> reportList = new ArrayList<Report>();
+        for(String reportBean : reportBeanList) {
+            reportList.add(createPaymentReport(reportBean));
+        }
+        return reportList;
     }
 
-    public Report createFailurePaymentReport() {
+    private Report createPaymentReport(String beanName) {
         //Reports are recreated from scratch for every request, so they cannot be autowired into long-lived objects.
-        ReportDao failureReport = (ReportDao)appCtx.getBean("failureReportDao");
-        return failureReport.createReport();
+        ReportDao report = (ReportDao)appCtx.getBean(beanName);
+        return report.createReport();
     }
 
-    public Report createDetailedFailurePaymentReport() {
-        //Reports are recreated from scratch for every request, so they cannot be autowired into long-lived objects.
-        ReportDao detailFailureReport = (ReportDao)appCtx.getBean("detailedFailureReportDao");
-        return detailFailureReport.createReport();
+    public List<String> getReportBeanList() {
+        return reportBeanList;
     }
 
+    public void setReportBeanList(List<String> reportBeanList) {
+        this.reportBeanList = reportBeanList;
+    }
 }

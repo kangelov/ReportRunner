@@ -9,19 +9,36 @@
         http://www.springframework.org/schema/util/spring-util-4.0.xsd
 ">
 
+    <bean id="reportFactory" class="com.qualicom.rr.report.ReportFactory">
+        <property name="reportBeanList">
+            <util:list value-type="java.lang.String">
+                <value>successReportDao</value>
+                <value>failureReportDao</value>
+                <value>detailedFailureReportDao</value>
+            </util:list>
+        </property>
+    </bean>
+
     <bean id="fastDateFormat" class="org.apache.commons.lang3.time.FastDateFormat" factory-method="getInstance">
         <constructor-arg value="MM/dd/yyyy"/>
     </bean>
 
-    <bean id="mmddyyyyAsString" class="java.lang.String" factory-bean="fastDateFormat" factory-method="format" scope="request">
+    <bean id="mmddyyyyAsString" class="java.lang.String" factory-bean="fastDateFormat" factory-method="format" scope="prototype">
         <constructor-arg>
             <bean class="java.util.Date" factory-bean="reportFactory" factory-method="getReportDate"/>
         </constructor-arg>
     </bean>
 
-    <bean id="successReportDao" class="com.qualicom.rr.dao.impl.ReportDaoImpl" scope="request">
+    <bean id="successReportDao" class="com.qualicom.rr.dao.impl.ReportDaoImpl" scope="prototype">
+        <!-- Where data is coming from -->
         <property name="dataSource" ref="tmpgarDataSource"/>
-        <property name="query" value="SELECT TRUNC(PT.TRANS_DT) as transDt, PTT.PYMT_TRANS_TYPE_CD as transTypeCd, PTR.trans_reason_desc as transReasonDesc, count(PT.PYMT_TRANS_ID) as numTrans FROM PYMT_TRANS PT,  PYMT_TRANS_TYPE PTT, PYMT_TRANS_REASON PTR WHERE PT.PYMT_TRANS_TYPE_ID = PTT.PYMT_TRANS_TYPE_ID(+) AND PT.PYMT_TRANS_REASON_ID = PTR.PYMT_TRANS_REASON_ID(+) AND TRUNC(PT.TRANS_DT)= TO_DATE (:mmddyyyy, 'MM/DD/YYYY') AND PT.PYMT_TRANS_TYPE_ID IN ( 1,2) and pt.pymt_trans_status_id !=3 AND PTR.TRANS_REASON_DESC !='AUTHONLY' GROUP BY  TRUNC(PT.TRANS_DT), PTT.PYMT_TRANS_TYPE_CD, PTR.trans_reason_desc ORDER BY 1, 2, 3"/>
+        <!-- File name of report -->
+        <property name="name" value="successPaymentsReport"/>
+        <!-- Title of report -->
+        <property name="title" value="Successful Payments Report"/>
+        <!-- SQL query to create the report -->
+        <property name="query" value="SELECT to_char(TRUNC(PT.TRANS_DT),'MM/DD/YYYY') as transDt, PTT.PYMT_TRANS_TYPE_CD as transTypeCd, PTR.trans_reason_desc as transReasonDesc, count(PT.PYMT_TRANS_ID) as numTrans FROM PYMT_TRANS PT,  PYMT_TRANS_TYPE PTT, PYMT_TRANS_REASON PTR WHERE PT.PYMT_TRANS_TYPE_ID = PTT.PYMT_TRANS_TYPE_ID(+) AND PT.PYMT_TRANS_REASON_ID = PTR.PYMT_TRANS_REASON_ID(+) AND TRUNC(PT.TRANS_DT)= TO_DATE (:mmddyyyy, 'MM/DD/YYYY') AND PT.PYMT_TRANS_TYPE_ID IN ( 1,2) and pt.pymt_trans_status_id !=3 AND PTR.TRANS_REASON_DESC !='AUTHONLY' GROUP BY  TRUNC(PT.TRANS_DT), PTT.PYMT_TRANS_TYPE_CD, PTR.trans_reason_desc ORDER BY 1, 2, 3"/>
+        <!-- Report columns as returned by the query - these are used to match the columns returned by the SQL! -->
         <property name="reportColumns">
             <bean class="com.qualicom.rr.model.ReportColumns">
                 <constructor-arg name="list">
@@ -34,6 +51,20 @@
                 </constructor-arg>
             </bean>
         </property>
+        <!-- Report columns used for display - these are used to render the report for user. Columns are in the same order as above. -->
+        <property name="displayColumns">
+            <bean class="com.qualicom.rr.model.ReportColumns">
+                <constructor-arg name="list">
+                    <util:list value-type="java.lang.String">
+                        <value>Date</value>
+                        <value>Tender</value>
+                        <value>Type</value>
+                        <value>Count</value>
+                    </util:list>
+                </constructor-arg>
+            </bean>
+        </property>
+        <!-- Input parameters for the report SQL - each of these must align with a parameter in the SQL above. -->
         <property name="reportParameters">
             <bean class="com.qualicom.rr.model.ReportParameters">
                 <constructor-arg name="map">
@@ -45,9 +76,11 @@
         </property>
     </bean>
 
-    <bean id="failureReportDao" class="com.qualicom.rr.dao.impl.ReportDaoImpl" scope="request">
+    <bean id="failureReportDao" class="com.qualicom.rr.dao.impl.ReportDaoImpl" scope="prototype">
         <property name="dataSource" ref="tmpgarDataSource"/>
-        <property name="query" value="SELECT TRUNC(PT.TRANS_DT) as transDt, PTT.PYMT_TRANS_TYPE_CD as transTypeCd, PTR.trans_reason_desc as transReasonDesc, PT.pymt_trans_status_id as transStatusId, count(PT.PYMT_TRANS_ID) as numTrans FROM PYMT_TRANS PT,  PYMT_TRANS_TYPE PTT, PYMT_TRANS_REASON PTR WHERE PT.PYMT_TRANS_TYPE_ID = PTT.PYMT_TRANS_TYPE_ID(+) AND PT.PYMT_TRANS_REASON_ID = PTR.PYMT_TRANS_REASON_ID(+) AND TRUNC(PT.TRANS_DT)= TO_DATE (:mmddyyyy, 'MM/DD/YYYY') AND PT.PYMT_TRANS_TYPE_ID IN ( 1,2) and pt.pymt_trans_status_id=3 AND PTR.TRANS_REASON_DESC !='AUTHONLY' GROUP BY  TRUNC(PT.TRANS_DT), PTT.PYMT_TRANS_TYPE_CD, PTR.trans_reason_desc, PT.pymt_trans_status_id ORDER BY 1, 2, 3"/>
+        <property name="name" value="failedPaymentsReport"/>
+        <property name="title" value="Failed Payments Report"/>
+        <property name="query" value="SELECT to_char(TRUNC(PT.TRANS_DT),'MM/DD/YYYY') as transDt, PTT.PYMT_TRANS_TYPE_CD as transTypeCd, PTR.trans_reason_desc as transReasonDesc, PT.pymt_trans_status_id as transStatusId, count(PT.PYMT_TRANS_ID) as numTrans FROM PYMT_TRANS PT,  PYMT_TRANS_TYPE PTT, PYMT_TRANS_REASON PTR WHERE PT.PYMT_TRANS_TYPE_ID = PTT.PYMT_TRANS_TYPE_ID(+) AND PT.PYMT_TRANS_REASON_ID = PTR.PYMT_TRANS_REASON_ID(+) AND TRUNC(PT.TRANS_DT)= TO_DATE (:mmddyyyy, 'MM/DD/YYYY') AND PT.PYMT_TRANS_TYPE_ID IN ( 1,2) and pt.pymt_trans_status_id=3 AND PTR.TRANS_REASON_DESC !='AUTHONLY' GROUP BY  TRUNC(PT.TRANS_DT), PTT.PYMT_TRANS_TYPE_CD, PTR.trans_reason_desc, PT.pymt_trans_status_id ORDER BY 1, 2, 3"/>
         <property name="reportColumns">
             <bean class="com.qualicom.rr.model.ReportColumns">
                 <constructor-arg name="list">
@@ -61,6 +94,19 @@
                 </constructor-arg>
             </bean>
         </property>
+        <property name="displayColumns">
+            <bean class="com.qualicom.rr.model.ReportColumns">
+                <constructor-arg name="list">
+                    <util:list value-type="java.lang.String">
+                        <value>Date</value>
+                        <value>Tender</value>
+                        <value>Type</value>
+                        <value>Status</value>
+                        <value>Count</value>
+                    </util:list>
+                </constructor-arg>
+            </bean>
+        </property>
         <property name="reportParameters">
             <bean class="com.qualicom.rr.model.ReportParameters">
                 <constructor-arg name="map">
@@ -72,9 +118,11 @@
         </property>
     </bean>
 
-    <bean id="detailedFailureReportDao" class="com.qualicom.rr.dao.impl.ReportDaoImpl" scope="request">
+    <bean id="detailedFailureReportDao" class="com.qualicom.rr.dao.impl.ReportDaoImpl" scope="prototype">
         <property name="dataSource" ref="tmpgarDataSource"/>
-        <property name="query" value="SELECT TRUNC(PT.TRANS_DT) as transDt, PTT.PYMT_TRANS_TYPE_CD as transTypeCd, PTR.trans_reason_desc as transReasonDesc, PT.response_cd as responseCd, count(PT.PYMT_TRANS_ID) as numTrans FROM PYMT_TRANS PT,  PYMT_TRANS_TYPE PTT, PYMT_TRANS_REASON PTR WHERE PT.PYMT_TRANS_TYPE_ID = PTT.PYMT_TRANS_TYPE_ID(+) AND PT.PYMT_TRANS_REASON_ID = PTR.PYMT_TRANS_REASON_ID(+) AND TRUNC(PT.TRANS_DT)= TO_DATE (:mmddyyyy, 'MM/DD/YYYY') AND PT.PYMT_TRANS_TYPE_ID IN ( 1,2) and pt.pymt_trans_status_id=3 AND PTR.TRANS_REASON_DESC !='AUTHONLY' GROUP BY  TRUNC(PT.TRANS_DT), PTT.PYMT_TRANS_TYPE_CD, PTR.trans_reason_desc, PT.response_cd ORDER BY 1, 2, 3"/>
+        <property name="name" value="detailedFailedPaymentsReport"/>
+        <property name="title" value="Detailed Failed Payments Report"/>
+        <property name="query" value="SELECT to_char(TRUNC(PT.TRANS_DT),'MM/DD/YYYY') as transDt, PTT.PYMT_TRANS_TYPE_CD as transTypeCd, PTR.trans_reason_desc as transReasonDesc, PT.response_cd as responseCd, count(PT.PYMT_TRANS_ID) as numTrans FROM PYMT_TRANS PT,  PYMT_TRANS_TYPE PTT, PYMT_TRANS_REASON PTR WHERE PT.PYMT_TRANS_TYPE_ID = PTT.PYMT_TRANS_TYPE_ID(+) AND PT.PYMT_TRANS_REASON_ID = PTR.PYMT_TRANS_REASON_ID(+) AND TRUNC(PT.TRANS_DT)= TO_DATE (:mmddyyyy, 'MM/DD/YYYY') AND PT.PYMT_TRANS_TYPE_ID IN ( 1,2) and pt.pymt_trans_status_id=3 AND PTR.TRANS_REASON_DESC !='AUTHONLY' GROUP BY  TRUNC(PT.TRANS_DT), PTT.PYMT_TRANS_TYPE_CD, PTR.trans_reason_desc, PT.response_cd ORDER BY 1, 2, 3"/>
         <property name="reportColumns">
             <bean class="com.qualicom.rr.model.ReportColumns">
                 <constructor-arg name="list">
@@ -84,6 +132,19 @@
                         <value>transReasonDesc</value>
                         <value>responseCd</value>
                         <value>numTrans</value>
+                    </util:list>
+                </constructor-arg>
+            </bean>
+        </property>
+        <property name="displayColumns">
+            <bean class="com.qualicom.rr.model.ReportColumns">
+                <constructor-arg name="list">
+                    <util:list value-type="java.lang.String">
+                        <value>Date</value>
+                        <value>Tender</value>
+                        <value>Type</value>
+                        <value>Response Code</value>
+                        <value>Count</value>
                     </util:list>
                 </constructor-arg>
             </bean>

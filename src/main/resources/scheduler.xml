@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:task="http://www.springframework.org/schema/task"
+       xsi:schemaLocation="
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+        http://www.springframework.org/schema/task
+        http://www.springframework.org/schema/task/spring-task-4.0.xsd
+">
+
+    <!-- Configuration for scheduled tasks -->
+    <task:scheduler id="taskScheduler" pool-size="2" />
+    <task:executor id="taskExecutor" pool-size="2" />
+    <task:annotation-driven scheduler="taskScheduler" executor="taskExecutor" />
+
+    <task:scheduled-tasks scheduler="taskScheduler">
+        <!-- second, minute, hour, day, month, weekday -->
+        <task:scheduled ref="mainController" method="runReports" cron="0 0 5 * * *"/>
+    </task:scheduled-tasks>
+
+</beans>

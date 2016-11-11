@@ -10,8 +10,8 @@
     <packaging>war</packaging>
 
     <properties>
-        <jdk.version>1.7</jdk.version>
-        <jre.version>1.7</jre.version>
+        <jdk.version>1.6</jdk.version>
+        <jre.version>1.6</jre.version>
         <spring.version>4.3.3.RELEASE</spring.version>
         <spring.batch.version>3.0.7.RELEASE</spring.batch.version>
         <jstl.version>1.2</jstl.version>
@@ -80,23 +80,35 @@
             <version>${spring.version}</version>
         </dependency>
 
+        <!-- PDF -->
+        <dependency>
+            <groupId>org.apache.xmlgraphics</groupId>
+            <artifactId>fop</artifactId>
+            <version>${apache.fop.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>xerces</groupId>
+            <artifactId>xercesImpl</artifactId>
+            <version>2.11.0</version>
+        </dependency>
+
+        <!-- Java Mail API -->
+        <dependency>
+            <groupId>javax.mail</groupId>
+            <artifactId>mail</artifactId>
+            <version>1.4.7</version>
+        </dependency>
+
         <!-- JDBC access -->
         <dependency>
             <groupId>commons-dbcp</groupId>
             <artifactId>commons-dbcp</artifactId>
             <version>${apache.commons.dbcp}</version>
         </dependency>
-        <dependency>
+        <dependency> <!-- Keep the Oracle JDBC driver last in the POM. Apache FOP fails when Oracle XML APIs come in the classpath before the Apache ones -->
             <groupId>com.oracle.jdbc</groupId>
             <artifactId>ojdbc7</artifactId>
             <version>${oracle.driver.version}</version>
-        </dependency>
-
-        <!-- PDF -->
-        <dependency>
-            <groupId>org.apache.xmlgraphics</groupId>
-            <artifactId>fop</artifactId>
-            <version>${apache.fop.version}</version>
         </dependency>
     </dependencies>
 
@@ -116,7 +128,6 @@
                 <artifactId>jetty-maven-plugin</artifactId> <!-- This needs JDK 1.7+ to run if you want it: mvn jetty:run -->
                 <version>${jetty.test.server.version}</version>
                 <configuration>
-                    <scanIntervalSeconds>10</scanIntervalSeconds>
                     <webApp>
                         <contextPath>/ReportRunner</contextPath>
                     </webApp>

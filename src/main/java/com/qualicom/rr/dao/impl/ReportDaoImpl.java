@@ -20,7 +20,13 @@ import java.util.Map;
  */
 public class ReportDaoImpl extends NamedParameterJdbcDaoSupport implements ReportDao {
 
+    public String title;
+
+    public String name;
+
     public ReportColumns reportColumns;
+
+    public ReportColumns displayColumns;
 
     public ReportParameters reportParameters;
 
@@ -28,7 +34,7 @@ public class ReportDaoImpl extends NamedParameterJdbcDaoSupport implements Repor
 
     @Override
     public Report createReport() {
-        return new Report(reportColumns,generateData(query,reportColumns,reportParameters));
+        return new Report(name, title,displayColumns,generateData(query,reportColumns,reportParameters));
     }
 
     List<ReportRow> generateData(final String query, final ReportColumns columns, final ReportParameters parameters) {
@@ -82,5 +88,29 @@ public class ReportDaoImpl extends NamedParameterJdbcDaoSupport implements Repor
 
     public void setQuery(String query) {
         this.query = query;
+    }
+
+    public ReportColumns getDisplayColumns() {
+        return displayColumns;
+    }
+
+    public void setDisplayColumns(ReportColumns displayColumns) {
+        this.displayColumns = displayColumns;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }
