@@ -1,100 +1,86 @@
 package com.qualicom.rr.dao.impl;
 
 import com.qualicom.rr.dao.ReportDao;
-import com.qualicom.rr.model.ReportLine;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.jdbc.core.PreparedStatementCallback;
+import com.qualicom.rr.model.Report;
+import com.qualicom.rr.model.ReportColumns;
+import com.qualicom.rr.model.ReportRow;
+import com.qualicom.rr.model.ReportParameters;
+import org.springframework.jdbc.core.ResultSetExtractor;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcDaoSupport;
-import org.springframework.stereotype.Repository;
 
-import javax.sql.DataSource;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by x110277 on 11/09/2016.
  */
 public class ReportDaoImpl extends NamedParameterJdbcDaoSupport implements ReportDao {
 
-    private String successQuery;
-    private String successQueryColumns;
+    public ReportColumns reportColumns;
 
-    private String failureQuery;
-    private String failureQueryColumns;
+    public ReportParameters reportParameters;
 
-    private String detailedFailureQuery;
-    private String detailedFailureQueryColumns;
+    public String query;
 
-    public String getSuccessQuery() {
-        return successQuery;
+    @Override
+    public Report createReport() {
+        return new Report(reportColumns,generateData(query,reportColumns,reportParameters));
     }
 
-    public void setSuccessQuery(String successQuery) {
-        this.successQuery = successQuery;
-    }
+    List<ReportRow> generateData(final String query, final ReportColumns columns, final ReportParameters parameters) {
+        //Populate the parameter list in order.
+        MapSqlParameterSource namedParameters = new MapSqlParameterSource();
+        for (Map.Entry<String,String> entry : parameters.entrySet()) {
+            namedParameters.addValue(entry.getKey(), entry.getValue());
+        }
 
-    public String getFailureQuery() {
-        return failureQuery;
-    }
-
-    public void setFailureQuery(String failureQuery) {
-        this.failureQuery = failureQuery;
-    }
-
-    public String getDetailedFailureQuery() {
-        return detailedFailureQuery;
-    }
-
-    public void setDetailedFailureQuery(String detailedFailureQuery) {
-        this.detailedFailureQuery = detailedFailureQuery;
-    }
-
-    public String getSuccessQueryColumns() {
-        return successQueryColumns;
-    }
-
-    public void setSuccessQueryColumns(String successQueryColumns) {
-        this.successQueryColumns = successQueryColumns;
-    }
-
-    public String getFailureQueryColumns() {
-        return failureQueryColumns;
-    }
-
-    public void setFailureQueryColumns(String failureQueryColumns) {
-        this.failureQueryColumns = failureQueryColumns;
-    }
-
-    public String getDetailedFailureQueryColumns() {
-        return detailedFailureQueryColumns;
-    }
-
-    public void setDetailedFailureQueryColumns(String detailedFailureQueryColumns) {
-        this.detailedFailureQueryColumns = detailedFailureQueryColumns;
-    }
-
-    private List<ReportLine> createReport(final String query, final String[] columns, final String mmddyyyy) {
-        final List<ReportLine> report = getJdbcTemplate().execute(query, new PreparedStatementCallback<List<ReportLine>>() {
+        //Run the report and extract the resultset
+        final List<ReportRow> data = getNamedParameterJdbcTemplate().query(query, namedParameters, new ResultSetExtractor<List<ReportRow>>() {
 
             @Override
-            public List<ReportLine> doInPreparedStatement(PreparedStatement pstmt) throws SQLException {
-
-                pstmt.setString(1, mmddyyyy);
-
-                ResultSet results = pstmt.executeQuery();
-                ArrayList<ReportLine> report = new ArrayList<ReportLine>();
+            public List<ReportRow> extractData(ResultSet results) throws SQLException {
+                //Now read the result
+                ArrayList<ReportRow> data = new ArrayList<ReportRow>();
                 while (results != null && results.next()) {
-                    //Do stuff here to populate the report from the query given, keying each value by its column name
+                    ReportRow line = new ReportRow();
+                    for (String col : columns) {
+                        String value = results.getString(col);
+                        line.add(value);
+                    }
+                    data.add(line);
                 }
-                return report;
-            };
+                return data;
+            }
         });
-        return report;
+        return data;
     }
 
+    public ReportColumns getReportColumns() {
+        return reportColumns;
+    }
 
+    public void setReportColumns(ReportColumns reportColumns) {
+        this.reportColumns = reportColumns;
+    }
+
+    public ReportParameters getReportParameters() {
+        return reportParameters;
+    }
+
+    @Override
+    public void setReportParameters(ReportParameters reportParameters) {
+        this.reportParameters = reportParameters;
+    }
+
+    public String getQuery() {
+        return query;
+    }
+
+    public void setQuery(String query) {
+        this.query = query;
+    }
 }

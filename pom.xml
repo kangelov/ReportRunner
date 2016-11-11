@@ -16,10 +16,20 @@
         <spring.batch.version>3.0.7.RELEASE</spring.batch.version>
         <jstl.version>1.2</jstl.version>
         <oracle.driver.version>12.1.0.2</oracle.driver.version>
+        <apache.fop.version>2.1</apache.fop.version>
+        <apache.commons.dbcp>1.4</apache.commons.dbcp>
+        <apache.commons.lang>3.4</apache.commons.lang>
         <jetty.test.server.version>9.2.10.v20150310</jetty.test.server.version>
     </properties>
 
     <dependencies>
+        <!-- Apache Commons -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>${apache.commons.lang}</version>
+        </dependency>
+
         <!-- Spring Core -->
         <dependency>
             <groupId>org.springframework</groupId>
@@ -74,12 +84,19 @@
         <dependency>
             <groupId>commons-dbcp</groupId>
             <artifactId>commons-dbcp</artifactId>
-            <version>1.4</version>
+            <version>${apache.commons.dbcp}</version>
         </dependency>
         <dependency>
             <groupId>com.oracle.jdbc</groupId>
             <artifactId>ojdbc7</artifactId>
             <version>${oracle.driver.version}</version>
+        </dependency>
+
+        <!-- PDF -->
+        <dependency>
+            <groupId>org.apache.xmlgraphics</groupId>
+            <artifactId>fop</artifactId>
+            <version>${apache.fop.version}</version>
         </dependency>
     </dependencies>
 
