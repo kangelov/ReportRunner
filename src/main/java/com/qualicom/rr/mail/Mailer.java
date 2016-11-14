@@ -1,13 +1,9 @@
 package com.qualicom.rr.mail;
 
-import com.qualicom.rr.model.Report;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import com.qualicom.rr.model.MarshalledReports;;
 
 import javax.activation.DataHandler;
 import javax.activation.DataSource;
-import javax.activation.FileDataSource;
-import javax.activation.MimeType;
 import javax.mail.BodyPart;
 import javax.mail.Message;
 import javax.mail.Multipart;
@@ -16,7 +12,7 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMultipart;
 import java.io.*;
-import java.util.Map;
+import java.util.List;
 
 /**
  * Created by x110277 on 11/11/2016.
@@ -33,7 +29,7 @@ public class Mailer {
 
     private String mailText;
 
-    public void sendMail(final Map<Report,byte[]> pdfAttachments) throws Exception {
+    public void sendMail(final List<MarshalledReports> attachments) throws Exception {
         message.setFrom(new InternetAddress(mailFrom));
         message.setRecipients(Message.RecipientType.TO,
                 InternetAddress.parse(mailTo));
@@ -47,13 +43,13 @@ public class Mailer {
         multipart.addBodyPart(messageBodyPart);
 
         //Now send attachments
-        for(final Report report : pdfAttachments.keySet()) {
+        for(final MarshalledReports marshalledReport : attachments) {
             messageBodyPart = new MimeBodyPart();
             DataSource source = new DataSource() {
 
                 @Override
                 public InputStream getInputStream() throws IOException {
-                    return new ByteArrayInputStream(pdfAttachments.get(report));
+                    return new ByteArrayInputStream(marshalledReport.getMarshalledReports());
                 }
 
                 @Override
@@ -63,16 +59,16 @@ public class Mailer {
 
                 @Override
                 public String getContentType() {
-                    return "application/pdf";
+                    return marshalledReport.getMimeType();
                 }
 
                 @Override
                 public String getName() {
-                    return report.getName();
+                    return marshalledReport.getName();
                 }
             };
             messageBodyPart.setDataHandler(new DataHandler(source));
-            messageBodyPart.setFileName(source.getName() + ".pdf");
+            messageBodyPart.setFileName(marshalledReport.getName() + "." + marshalledReport.getFileExtension());
             multipart.addBodyPart(messageBodyPart);
         }
 

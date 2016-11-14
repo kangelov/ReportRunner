@@ -1,10 +1,14 @@
 package com.qualicom.rr.report;
 
+import com.qualicom.rr.marshall.MarshallAdapter;
+import com.qualicom.rr.model.MarshalledReports;
 import com.qualicom.rr.model.Report;
 import org.apache.fop.apps.FOUserAgent;
 import org.apache.fop.apps.Fop;
 import org.apache.fop.apps.FopFactory;
 import org.apache.fop.apps.MimeConstants;
+import org.springframework.http.converter.xml.MarshallingHttpMessageConverter;
+import org.springframework.stereotype.Component;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -17,88 +21,59 @@ import javax.xml.transform.sax.SAXResult;
 import javax.xml.transform.stream.StreamSource;
 import java.io.*;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * A generic converter to convert your report to XML and PDF.
+ * A generic converter to convert your report to whatever formats are configured.
  *
  * Created by x110277 on 11/10/2016.
  */
+@Component
 public class ReportMarshaller {
 
-    private static final String APACHE_FOP_CONFIG_FILE="fopconfig.xml";
-    private static final String APACHE_FOP_REPORT_XSLT_FILE="report.xslt";
+    private String collectiveReportName;
 
-    private static FopFactory fopFactory = null;
-    static {
-        InputStream confStream = ReportMarshaller.class.getClassLoader().getResourceAsStream(APACHE_FOP_CONFIG_FILE);
-        URI uri = URI.create(".");
-        try {
-            fopFactory = FopFactory.newInstance(uri,confStream);
-        } catch (Exception e) {
-            e.printStackTrace();
+    public String getCollectiveReportName() {
+        return collectiveReportName;
+    }
+
+    public void setCollectiveReportName(String collectiveReportName) {
+        this.collectiveReportName = collectiveReportName;
+    }
+
+    private List<MarshallAdapter> marshallAdapterList;
+
+    public List<MarshallAdapter> getMarshallAdapterList() {
+        return marshallAdapterList;
+    }
+
+    public void setMarshallAdapterList(List<MarshallAdapter> marshallAdapterList) {
+        this.marshallAdapterList = marshallAdapterList;
+    }
+
+    public List<MarshalledReports> marshallReports(List<Report> reportList) throws Exception {
+        List<MarshalledReports> marshalledReportsList = new ArrayList<MarshalledReports>();
+        for(MarshallAdapter marshallAdapter : marshallAdapterList) {
+            if (!marshallAdapter.canHandleMultipleReports()) {
+                for (Report report : reportList) {
+                    MarshalledReports marshalledReport = new MarshalledReports(
+                            report.getName(),
+                            marshallAdapter.getFileExtension(),
+                            marshallAdapter.generateReports(report),
+                            marshallAdapter.getMimeType());
+                    marshalledReportsList.add(marshalledReport);
+                }
+            } else {
+                MarshalledReports marshalledReport = new MarshalledReports(
+                        collectiveReportName,
+                        marshallAdapter.getFileExtension(),
+                        marshallAdapter.generateReports(reportList.toArray(new Report[] { } )),
+                        marshallAdapter.getMimeType());
+                marshalledReportsList.add(marshalledReport);
+            }
         }
+        return marshalledReportsList;
     }
 
-
-    private ReportMarshaller() {
-
-    }
-
-    public static InputStream convertToXml(Report report) throws Exception {
-        ByteArrayOutputStream output = new ByteArrayOutputStream();
-        try {
-            JAXBContext jc = JAXBContext.newInstance(Report.class);
-            Marshaller m = jc.createMarshaller();
-            m.marshal(report, output);
-        } catch (JAXBException e) {
-            throw new Exception("failed to convert report to xml stream.",e);
-        } finally {
-            output.close();
-        }
-        return new ByteArrayInputStream(output.toByteArray());
-    }
-
-    public static String convertToXmlString(Report report) throws Exception {
-        ByteArrayOutputStream output = new ByteArrayOutputStream();
-        try {
-            JAXBContext jc = JAXBContext.newInstance(Report.class);
-            Marshaller m = jc.createMarshaller();
-            m.marshal(report, output);
-        } catch (JAXBException e) {
-            throw new Exception("failed to convert report to xml stream.",e);
-        } finally {
-            output.close();
-        }
-        return output.toString("UTF-8");
-    }
-
-    public static byte[] createPDFReport(Report report) throws Exception {
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-
-        try {
-
-            FOUserAgent foUserAgent = fopFactory.newFOUserAgent();
-            foUserAgent.setTitle(report.getTitle());
-
-            Fop fop = fopFactory.newFop(MimeConstants.MIME_PDF, foUserAgent, outputStream);
-
-
-            TransformerFactory factory = TransformerFactory.newInstance();
-
-            Source xslt = new StreamSource(ReportMarshaller.class.getClassLoader().getResourceAsStream(APACHE_FOP_REPORT_XSLT_FILE));
-            Transformer transformer = factory.newTransformer(xslt);
-
-            Source src = new StreamSource(convertToXml(report));
-
-            Result res = new SAXResult(fop.getDefaultHandler());
-            transformer.transform(src, res);
-
-        } catch (Exception e) {
-            throw e;
-        } finally {
-            outputStream.close();
-        }
-
-        return outputStream.toByteArray();
-    }
 }

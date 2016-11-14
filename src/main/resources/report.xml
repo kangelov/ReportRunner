@@ -19,6 +19,16 @@
         </property>
     </bean>
 
+    <bean id="reportMarshaller" class="com.qualicom.rr.report.ReportMarshaller">
+        <property name="collectiveReportName" value="paymentReports"/>
+        <property name="marshallAdapterList">
+            <util:list value-type="com.qualicom.rr.marshall.MarshallAdapter">
+                <ref bean="pdfMarshallAdapter"/>
+                <ref bean="xlsMarshallAdapter"/>
+            </util:list>
+        </property>
+    </bean>
+
     <bean id="fastDateFormat" class="org.apache.commons.lang3.time.FastDateFormat" factory-method="getInstance">
         <constructor-arg value="MM/dd/yyyy"/>
     </bean>

@@ -1,6 +1,8 @@
 package com.qualicom.rr.controller;
 
 import com.qualicom.rr.mail.Mailer;
+import com.qualicom.rr.marshall.MarshallAdapter;
+import com.qualicom.rr.model.MarshalledReports;
 import com.qualicom.rr.model.Report;
 import com.qualicom.rr.report.ReportFactory;
 import com.qualicom.rr.report.ReportMarshaller;
@@ -30,6 +32,9 @@ public class MainController {
     private ReportFactory reportFactory;
 
     @Autowired
+    private ReportMarshaller reportMarshaller;
+
+    @Autowired
     private Mailer mailer;
 
     @RequestMapping(value = "/", method = RequestMethod.GET)
@@ -53,10 +58,8 @@ public class MainController {
 
         List<Report> reportList = reportFactory.generateReports();
 
-        Map<Report, byte[]> pdfMap = new HashMap<Report, byte[]>();
-        for (Report report : reportList) {
-            pdfMap.put(report, ReportMarshaller.createPDFReport(report));
-        }
-        mailer.sendMail(pdfMap);
+        List<MarshalledReports> marshalledReports = reportMarshaller.marshallReports(reportList);
+
+        mailer.sendMail(marshalledReports);
     }
 }
