@@ -29,11 +29,11 @@ public class Mailer {
 
     private String mailText;
 
-    public void sendMail(final List<MarshalledReports> attachments) throws Exception {
+    public void sendMail(final String subjectAddon, final List<MarshalledReports> attachments) throws Exception {
         message.setFrom(new InternetAddress(mailFrom));
         message.setRecipients(Message.RecipientType.TO,
                 InternetAddress.parse(mailTo));
-        message.setSubject(mailSubject);
+        message.setSubject(mailSubject + subjectAddon);
 
         //Add the e-mail text
         BodyPart messageBodyPart = new MimeBodyPart();

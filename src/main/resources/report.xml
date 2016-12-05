@@ -151,7 +151,7 @@
                 <constructor-arg name="list">
                     <util:list value-type="java.lang.String">
                         <value>Date</value>
-                        <value>Tender</value>
+                        <value>Tendre</value>
                         <value>Type</value>
                         <value>Response Code</value>
                         <value>Count</value>

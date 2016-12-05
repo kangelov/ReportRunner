@@ -14,5 +14,6 @@
 <body>
     <h1>${title}</h1>
     <p>${message}</p>
+    <p><form method="GET" action="${pageContext.request.contextPath}/reportrun"><input type="submit" value="Force A Report Run"/></form></p>
 </body>
 </html>
